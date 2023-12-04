@@ -16,21 +16,13 @@ public class ChessGame extends JFrame {
 
     private void initializeBoard() {
         // Initialize the chess board with pieces in their initial positions
-        // You can represent pieces with their initials: "K" for king, "Q" for queen,
-        // etc.
-        // Empty squares can be represented by an empty string.
-        // This is a simplified representation; you might want to use a Piece class for
-        // a more sophisticated design.
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (i == 1)
-                    board[i][j] = "P"; // Pawn
-                else if (i == 6)
-                    board[i][j] = "p"; // Pawn
-                else
-                    board[i][j] = "";
-            }
+        board[0] = new String[] { "R", "N", "B", "Q", "K", "B", "N", "R" };
+        board[1] = new String[] { "P", "P", "P", "P", "P", "P", "P", "P" };
+        for (int i = 2; i < 6; i++) {
+            board[i] = new String[] { "", "", "", "", "", "", "", "" };
         }
+        board[6] = new String[] { "p", "p", "p", "p", "p", "p", "p", "p" };
+        board[7] = new String[] { "r", "n", "b", "q", "k", "b", "n", "r" };
     }
 
     private void initializeUI() {
@@ -86,6 +78,8 @@ public class ChessGame extends JFrame {
                     board[row][col] = board[selectedRow][selectedCol];
                     board[selectedRow][selectedCol] = "";
                     clickedButton.setText(board[row][col]);
+
+                    selectedButton.setText("");
 
                     // Reset the background color of the selected button
                     selectedButton.setBackground(null);
