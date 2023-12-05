@@ -80,16 +80,6 @@ public class ChessGame extends JFrame {
         board[6][6] = new Piece("p", true);
         board[6][7] = new Piece("p", true);
 
-        // Initialize the chess board with pieces in their initial positions
-        /*
-         * board[0] = new String[] { "R", "N", "B", "Q", "K", "B", "N", "R" };
-         * board[1] = new String[] { "P", "P", "P", "P", "P", "P", "P", "P" };
-         * for (int i = 2; i < 6; i++) {
-         * board[i] = new String[] { "", "", "", "", "", "", "", "" };
-         * }
-         * board[6] = new String[] { "p", "p", "p", "p", "p", "p", "p", "p" };
-         * board[7] = new String[] { "r", "n", "b", "q", "k", "b", "n", "r" };
-         */
     }
 
     private void initializeUI() {
@@ -145,7 +135,7 @@ public class ChessGame extends JFrame {
                 int selectedCol = getButtonCol(selectedButton);
 
                 // Check if the move is valid (you need to implement this logic)
-                if (isValidMove(selectedRow, selectedCol, row, col)) {
+                if (isValidMove(selectedRow, selectedCol, row, col /* , board[row][col] */)) {
                     // Move the piece to the new position
                     board[row][col] = board[selectedRow][selectedCol];
                     board[selectedRow][selectedCol] = null;
@@ -189,7 +179,7 @@ public class ChessGame extends JFrame {
 
         // Implement your own logic for checking the validity of the move
         private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
-            // You need to implement this based on the rules of chess
+            // if(this.symbol = )
             return true;
         }
     }
