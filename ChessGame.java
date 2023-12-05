@@ -135,7 +135,7 @@ public class ChessGame extends JFrame {
                 int selectedCol = getButtonCol(selectedButton);
 
                 // Check if the move is valid (you need to implement this logic)
-                if (isValidMove(selectedRow, selectedCol, row, col /* , board[row][col] */)) {
+                if (isValidMove(selectedRow, selectedCol, row, col, board[selectedRow][selectedCol])) {
                     // Move the piece to the new position
                     board[row][col] = board[selectedRow][selectedCol];
                     board[selectedRow][selectedCol] = null;
@@ -145,12 +145,21 @@ public class ChessGame extends JFrame {
 
                     // Reset the background color of the selected button
                     selectedButton.setBackground(null);
-                    selectedButton = null;
+
+                    selectedButton = clickedButton;
+                    selectedButton.setBackground(Color.YELLOW);
 
                     // Switch turns
                     isPlayer1Turn = !isPlayer1Turn;
+
+                    selectedButton.setBackground(null);
+                    selectedButton = null;
                 } else {
-                    JOptionPane.showMessageDialog(ChessGame.this, "Invalid move!");
+                    if (selectedButton == clickedButton) {
+                        selectedButton.setBackground(null);
+                        selectedButton = null;
+                    } else
+                        JOptionPane.showMessageDialog(ChessGame.this, "Invalid move!");
                 }
             }
         }
@@ -178,9 +187,92 @@ public class ChessGame extends JFrame {
         }
 
         // Implement your own logic for checking the validity of the move
-        private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
-            // if(this.symbol = )
-            return true;
+        private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol, Piece p) {
+            if (toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
+                return false;
+            }
+
+            // Check if the destination is empty or has an opponent's piece
+            if (board[toRow][toCol] == null
+                    || (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1())) {
+                // Implement specific rules for each piece
+                switch (p.getSymbol()) {
+                    case "P":
+                        // Pawn's basic movement and capturing
+                        int forwardDirectionP = p.isPlayer1() ? 1 : -1;
+                        int initialRowP = p.isPlayer1() ? 1 : 6;
+
+                        if ((toCol == fromCol && toRow == fromRow + forwardDirectionP) ||
+                                (fromRow == initialRowP && toCol == fromCol
+                                        && toRow == fromRow + 2 * forwardDirectionP)) {
+                            // Check for capturing
+                            if (board[toRow][toCol] == null) {
+                                return true; // Valid move (no capture)
+                            } else {
+                                return false; // Invalid move (occupied destination, no capture)
+                            }
+                        } else if (toCol == fromCol + 1 || toCol == fromCol - 1) {
+                            // Check for capturing diagonally
+                            if (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1()) {
+                                return true; // Valid move (capture)
+                            } else {
+                                return false; // Invalid move (no piece to capture)
+                            }
+                        } else {
+                            return false; // Invalid move (other conditions)
+                        }
+                    case "p":
+                        int backwardDirectionP = p.isPlayer1() ? -1 : 1;
+                        int initialRowPBlack = p.isPlayer1() ? 6 : 1;
+
+                        // Basic movement and capturing conditions
+                        if ((toCol == fromCol && toRow == fromRow + backwardDirectionP) ||
+                                (fromRow == initialRowPBlack && toCol == fromCol
+                                        && toRow == fromRow + 2 * backwardDirectionP)) {
+                            // Check for capturing (diagonally)
+                            if (toCol == fromCol + 1 && board[toRow][toCol] != null
+                                    && !board[toRow][toCol].isPlayer1()) {
+                                return true; // Valid move (capture)
+                            } else if (toCol == fromCol - 1 && board[toRow][toCol] != null
+                                    && !board[toRow][toCol].isPlayer1()) {
+                                return true; // Valid move (capture)
+                            } else if (board[toRow][toCol] == null) {
+                                return true; // Valid move (no capture)
+                            }
+                        }
+                        return false; // Invalid move
+                    case "N":
+                    case "n":
+                        // Knight's L-shaped movement
+                        int rowDiff = Math.abs(toRow - fromRow);
+                        int colDiff = Math.abs(toCol - fromCol);
+                        return (rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2);
+                    case "R":
+                    case "r":
+                        // Rook's movement (vertical or horizontal)
+                        return toRow == fromRow || toCol == fromCol;
+                    case "B":
+                    case "b":
+                        // Bishop's movement (diagonal)
+                        return Math.abs(toRow - fromRow) == Math.abs(toCol - fromCol);
+                    case "Q":
+                    case "q":
+                        // Queen's movement (combination of rook and bishop)
+                        return toRow == fromRow || toCol == fromCol
+                                || Math.abs(toRow - fromRow) == Math.abs(toCol - fromCol);
+                    case "K":
+                    case "k":
+                        // King's movement (one square in any direction)
+                        int rowDiffKing = Math.abs(toRow - fromRow);
+                        int colDiffKing = Math.abs(toCol - fromCol);
+                        return rowDiffKing <= 1 && colDiffKing <= 1;
+                    default:
+                        return false;
+                }
+
+            }
+
+            return false;
         }
     }
 
