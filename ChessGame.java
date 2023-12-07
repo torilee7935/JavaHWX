@@ -134,7 +134,7 @@ public class ChessGame extends JFrame {
                 int selectedRow = getButtonRow(selectedButton);
                 int selectedCol = getButtonCol(selectedButton);
 
-                // Check if the move is valid (you need to implement this logic)
+                // Check if the move is valid
                 if (isValidMove(selectedRow, selectedCol, row, col, board[selectedRow][selectedCol])) {
                     // Move the piece to the new position
                     board[row][col] = board[selectedRow][selectedCol];
@@ -146,19 +146,33 @@ public class ChessGame extends JFrame {
                     // Reset the background color of the selected button
                     selectedButton.setBackground(null);
 
+                    boolean flag = false;
+
+                    if (isKingInCheck(isPlayer1Turn)) {
+                        flag = true;
+                        JOptionPane.showMessageDialog(ChessGame.this, "Moving there puts you in Check.");
+                        board[selectedRow][selectedCol] = board[row][col];
+                        board[row][col] = null;
+                        clickedButton.setText("");
+
+                        if (isPlayer1Turn)
+                            selectedButton.setText("K");
+                        else
+                            selectedButton.setText("k");
+                        isPlayer1Turn = !isPlayer1Turn;
+                    }
+
                     selectedButton = clickedButton;
                     selectedButton.setBackground(Color.YELLOW);
 
                     // Switch turns
                     isPlayer1Turn = !isPlayer1Turn;
 
-                    boolean isOpponentInCheck = isKingInCheck(!isPlayer1Turn);
+                    boolean isOpponentInCheck = isKingInCheck(isPlayer1Turn);
 
-                    /*
-                     * if (isOpponentInCheck) {
-                     * JOptionPane.showMessageDialog(ChessGame.this, "Your are in check.");
-                     * }
-                     */
+                    if (isOpponentInCheck && !flag) {
+                        JOptionPane.showMessageDialog(ChessGame.this, "You placed your opponent in check.");
+                    }
 
                     selectedButton.setBackground(null);
                     selectedButton = null;
@@ -194,7 +208,6 @@ public class ChessGame extends JFrame {
             return -1;
         }
 
-        // Implement your own logic for checking the validity of the move
         private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol, Piece p) {
             if (toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
                 return false;
@@ -219,7 +232,8 @@ public class ChessGame extends JFrame {
                             } else {
                                 return false; // Invalid move (occupied destination, no capture)
                             }
-                        } else if (toCol == fromCol + 1 || toCol == fromCol - 1) {
+                        } else if ((toCol == fromCol + 1 || toCol == fromCol - 1)
+                                && toRow == fromRow + forwardDirectionP) {
                             // Check for capturing diagonally
                             if (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1()) {
                                 return true; // Valid move (capture)
@@ -381,7 +395,10 @@ public class ChessGame extends JFrame {
                 if (kingRow != -1 && kingCol != -1) {
                     break;
                 }
+
             }
+
+            System.out.println("King is on" + kingRow + ", " + kingCol);
 
             // Check if any opponent piece can move to the king's new position
             for (int i = 0; i < 8; i++) {
@@ -389,6 +406,8 @@ public class ChessGame extends JFrame {
                     Piece opponentPiece = board[i][j];
                     if (opponentPiece != null && opponentPiece.isPlayer1() != isPlayer1) {
                         if (isValidMove(i, j, kingRow, kingCol, opponentPiece)) {
+                            System.out.println("King is attacked by" + i + ", " + j);
+
                             return true; // King is in check
                         }
                     }
