@@ -21,11 +21,13 @@ public class ChessGame extends JFrame {
         private String symbol;
         private boolean isPlayer1;
         private boolean hasMoved;
+        private ImageIcon image;
 
-        public Piece(String symbol, boolean isPlayer1) {
+        public Piece(String symbol, boolean isPlayer1, ImageIcon image) {
             this.symbol = symbol;
             this.isPlayer1 = isPlayer1;
             this.hasMoved = false;
+            this.image = image;
         }
 
         public String getSymbol() {
@@ -57,45 +59,35 @@ public class ChessGame extends JFrame {
     }
 
     private void initializeBoard() {
-        board[0][0] = new Piece("R", true); // Rook
-        board[0][1] = new Piece("N", true); // Knight
-        board[0][2] = new Piece("B", true); // Bishop
-        board[0][3] = new Piece("Q", true); // Queen
-        board[0][4] = new Piece("K", true); // King
-        board[0][5] = new Piece("B", true); // Bishop
-        board[0][6] = new Piece("N", true); // Rook
-        board[0][7] = new Piece("R", true); // Knight
-        board[1][0] = new Piece("P", true); // Pawns
-        board[1][1] = new Piece("P", true);
-        board[1][2] = new Piece("P", true);
-        board[1][3] = new Piece("P", true);
-        board[1][4] = new Piece("P", true);
-        board[1][5] = new Piece("P", true);
-        board[1][6] = new Piece("P", true);
-        board[1][7] = new Piece("P", true);
-
+        board[0][0] = new Piece("R", true, new ImageIcon("PieceImages/WRook.png")); // Rook
+        board[0][1] = new Piece("N", true, new ImageIcon("PieceImages/WKnight.png")); // Knight
+        board[0][2] = new Piece("B", true, new ImageIcon("PieceImages/WBishop.png")); // Bishop
+        board[0][3] = new Piece("Q", true, new ImageIcon("PieceImages/WQueen.png")); // Queen
+        board[0][4] = new Piece("K", true, new ImageIcon("PieceImages/WKing.png")); // King
+        board[0][5] = new Piece("B", true, new ImageIcon("PieceImages/WBishop.png")); // Bishop
+        board[0][6] = new Piece("N", true, new ImageIcon("PieceImages/WRook.png")); // Rook
+        board[0][7] = new Piece("R", true, new ImageIcon("PieceImages/WKnight.png")); // Knight
+        for(int i = 0; i < 8; i++){
+            board[1][i] = new Piece("P", true, new ImageIcon("PieceImages/WPawn.png")); // Pawns
+        }
+        
         for (int i = 2; i < 6; i++) {
             for (int j = 0; j < 8; j++) {
                 board[i][j] = null;
             }
         }
 
-        board[7][0] = new Piece("r", false); // Rook
-        board[7][1] = new Piece("n", false); // Knight
-        board[7][2] = new Piece("b", false); // Bishop
-        board[7][3] = new Piece("q", false); // Queen
-        board[7][4] = new Piece("k", false); // King
-        board[7][5] = new Piece("b", false); // Bishop
-        board[7][6] = new Piece("n", false); // Rook
-        board[7][7] = new Piece("r", false); // Knight
-        board[6][0] = new Piece("p", false);// Pawns
-        board[6][1] = new Piece("p", false);
-        board[6][2] = new Piece("p", false);
-        board[6][3] = new Piece("p", false);
-        board[6][4] = new Piece("p", false);
-        board[6][5] = new Piece("p", false);
-        board[6][6] = new Piece("p", false);
-        board[6][7] = new Piece("p", false);
+        board[7][0] = new Piece("r", false, new ImageIcon("PieceImages/BRook.png")); // Rook
+        board[7][1] = new Piece("n", false, new ImageIcon("PieceImages/BKnight.png")); // Knight
+        board[7][2] = new Piece("b", false, new ImageIcon("PieceImages/BBishop.png")); // Bishop
+        board[7][3] = new Piece("q", false, new ImageIcon("PieceImages/BQueen.png")); // Queen
+        board[7][4] = new Piece("k", false, new ImageIcon("PieceImages/BKing.png")); // King
+        board[7][5] = new Piece("b", false, new ImageIcon("PieceImages/BBishop.png")); // Bishop
+        board[7][6] = new Piece("n", false, new ImageIcon("PieceImages/BRook.png")); // Rook
+        board[7][7] = new Piece("r", false, new ImageIcon("PieceImages/BKnight.png")); // Knight
+        for(int i = 0; i < 8; i++){
+            board[6][i] = new Piece("p", false, new ImageIcon("PieceImages/BPawn.png"));// Pawns
+        }
 
     }
 
@@ -105,66 +97,13 @@ public class ChessGame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(8, 8));
 
-        String imageName = "";
-
         // Create buttons array
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
+                boardButtons[i][j] = new JButton();
                 if (board[i][j] != null) {
-                    /*
-                     * switch (board[i][j].getSymbol()) {
-                     * case "P":
-                     * imageName = "WPawn.png";
-                     * break;
-                     * case "p":
-                     * imageName = "BPawn.png";
-                     * break;
-                     * case "B":
-                     * imageName = "WBishop.png";
-                     * break;
-                     * case "b":
-                     * imageName = "BBishop.png";
-                     * break;
-                     * case "R":
-                     * imageName = "WRook.png";
-                     * break;
-                     * case "r":
-                     * imageName = "BRook.png";
-                     * break;
-                     * case "K":
-                     * imageName = "WKing.png";
-                     * break;
-                     * case "k":
-                     * imageName = "BKing.png";
-                     * break;
-                     * case "Q":
-                     * imageName = "WQueen.png";
-                     * break;
-                     * case "q":
-                     * imageName = "BQueen.png";
-                     * break;
-                     * case "N":
-                     * imageName = "WKnight.png";
-                     * break;
-                     * case "n":
-                     * imageName = "BKnight.png";
-                     * break;
-                     * }
-                     * 
-                     * InputStream icon = getClass().getResourceAsStream("/NewPieceImages/" +
-                     * imageName);
-                     * Image oldImage = ImageIO.read(resourceAsStream)
-                     * 
-                     * int buttonWidth = boardButtons[i][j].getWidth();
-                     * int buttonHeight = boardButtons[i][j].getHeight();
-                     * Image scaledImage = oldImage.getScaledInstance(buttonWidth, buttonHeight,
-                     * Image.SCALE_SMOOTH);
-                     */
-
-                    boardButtons[i][j] = new JButton(board[i][j].getSymbol());
-                } else {
-                    boardButtons[i][j] = new JButton();
-                }
+                    boardButtons[i][j].setIcon(board[i][j].image);
+                } 
                 boardButtons[i][j].addActionListener(new ChessButtonListener(i, j));
                 add(boardButtons[i][j]);
             }
@@ -313,31 +252,7 @@ public class ChessGame extends JFrame {
             if (board[toRow][toCol] == null
                     || (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1())) {
 
-                switch (p.getSymbol()) {
-                    case "P":
-                        int forwardDirectionP = p.isPlayer1() ? 1 : -1;
-                        int initialRowP = p.isPlayer1() ? 1 : 6;
-
-                        if ((toCol == fromCol && toRow == fromRow + forwardDirectionP) ||
-                                (fromRow == initialRowP && toCol == fromCol
-                                        && toRow == fromRow + 2 * forwardDirectionP)) {
-                            // Check for foward move
-                            if (board[toRow][toCol] == null) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        } else if ((toCol == fromCol + 1 || toCol == fromCol - 1)
-                                && toRow == fromRow + forwardDirectionP) {
-                            // Check for capturing diagonally
-                            if (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1()) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        } else {
-                            return false;
-                        }
+                switch (p.getSymbol().toLowerCase()) {
                     case "p":
                         int backwardDirectionP = p.isPlayer1() ? 1 : -1;
                         int initialRowPBlack = p.isPlayer1() ? 1 : 6;
@@ -360,7 +275,6 @@ public class ChessGame extends JFrame {
                         }
 
                         return false;
-                    case "N":
                     case "n":
                         // Knight's movement
                         int rowDiff = Math.abs(toRow - fromRow);
@@ -370,7 +284,6 @@ public class ChessGame extends JFrame {
                         } else {
                             return false;
                         }
-                    case "R":
                     case "r":
                         // Rook's movement
                         if (toRow == fromRow) {
@@ -400,7 +313,6 @@ public class ChessGame extends JFrame {
                         }
 
                         return canCapture;
-                    case "B":
                     case "b":
                         // Bishop's movement
                         if (Math.abs(toRow - fromRow) != Math.abs(toCol - fromCol)) {
@@ -424,7 +336,6 @@ public class ChessGame extends JFrame {
                         } else {
                             return false;
                         }
-                    case "Q":
                     case "q":
                         // Queen's movement
                         if (!(toRow == fromRow || toCol == fromCol
@@ -459,7 +370,6 @@ public class ChessGame extends JFrame {
                         } else {
                             return false;
                         }
-                    case "K":
                     case "k":
                         // King's movement
                         int rowDiffKing = Math.abs(toRow - fromRow);
