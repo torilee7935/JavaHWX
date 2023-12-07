@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ChessGame extends JFrame {
     private JButton[][] boardButtons = new JButton[8][8];
@@ -103,10 +105,62 @@ public class ChessGame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(8, 8));
 
+        String imageName = "";
+
         // Create buttons array
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] != null) {
+                    /*
+                     * switch (board[i][j].getSymbol()) {
+                     * case "P":
+                     * imageName = "WPawn.png";
+                     * break;
+                     * case "p":
+                     * imageName = "BPawn.png";
+                     * break;
+                     * case "B":
+                     * imageName = "WBishop.png";
+                     * break;
+                     * case "b":
+                     * imageName = "BBishop.png";
+                     * break;
+                     * case "R":
+                     * imageName = "WRook.png";
+                     * break;
+                     * case "r":
+                     * imageName = "BRook.png";
+                     * break;
+                     * case "K":
+                     * imageName = "WKing.png";
+                     * break;
+                     * case "k":
+                     * imageName = "BKing.png";
+                     * break;
+                     * case "Q":
+                     * imageName = "WQueen.png";
+                     * break;
+                     * case "q":
+                     * imageName = "BQueen.png";
+                     * break;
+                     * case "N":
+                     * imageName = "WKnight.png";
+                     * break;
+                     * case "n":
+                     * imageName = "BKnight.png";
+                     * break;
+                     * }
+                     * 
+                     * InputStream icon = getClass().getResourceAsStream("/NewPieceImages/" +
+                     * imageName);
+                     * Image oldImage = ImageIO.read(resourceAsStream)
+                     * 
+                     * int buttonWidth = boardButtons[i][j].getWidth();
+                     * int buttonHeight = boardButtons[i][j].getHeight();
+                     * Image scaledImage = oldImage.getScaledInstance(buttonWidth, buttonHeight,
+                     * Image.SCALE_SMOOTH);
+                     */
+
                     boardButtons[i][j] = new JButton(board[i][j].getSymbol());
                 } else {
                     boardButtons[i][j] = new JButton();
