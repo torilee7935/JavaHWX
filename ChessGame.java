@@ -63,22 +63,22 @@ public class ChessGame extends JFrame {
             }
         }
 
-        board[7][0] = new Piece("r", true); // Rook
-        board[7][1] = new Piece("n", true); // Knight
-        board[7][2] = new Piece("b", true); // Bishop
-        board[7][3] = new Piece("q", true); // Queen
-        board[7][4] = new Piece("k", true); // King
-        board[7][5] = new Piece("b", true); // Bishop
-        board[7][6] = new Piece("n", true); // Rook
-        board[7][7] = new Piece("r", true); // Knight
-        board[6][0] = new Piece("p", true);
-        board[6][1] = new Piece("p", true);
-        board[6][2] = new Piece("p", true);
-        board[6][3] = new Piece("p", true);
-        board[6][4] = new Piece("p", true); // Pawns
-        board[6][5] = new Piece("p", true);
-        board[6][6] = new Piece("p", true);
-        board[6][7] = new Piece("p", true);
+        board[7][0] = new Piece("r", false); // Rook
+        board[7][1] = new Piece("n", false); // Knight
+        board[7][2] = new Piece("b", false); // Bishop
+        board[7][3] = new Piece("q", false); // Queen
+        board[7][4] = new Piece("k", false); // King
+        board[7][5] = new Piece("b", false); // Bishop
+        board[7][6] = new Piece("n", false); // Rook
+        board[7][7] = new Piece("r", false); // Knight
+        board[6][0] = new Piece("p", false);
+        board[6][1] = new Piece("p", false);
+        board[6][2] = new Piece("p", false);
+        board[6][3] = new Piece("p", false);
+        board[6][4] = new Piece("p", false); // Pawns
+        board[6][5] = new Piece("p", false);
+        board[6][6] = new Piece("p", false);
+        board[6][7] = new Piece("p", false);
 
     }
 
@@ -152,6 +152,14 @@ public class ChessGame extends JFrame {
                     // Switch turns
                     isPlayer1Turn = !isPlayer1Turn;
 
+                    boolean isOpponentInCheck = isKingInCheck(!isPlayer1Turn);
+
+                    /*
+                     * if (isOpponentInCheck) {
+                     * JOptionPane.showMessageDialog(ChessGame.this, "Your are in check.");
+                     * }
+                     */
+
                     selectedButton.setBackground(null);
                     selectedButton = null;
                 } else {
@@ -222,24 +230,29 @@ public class ChessGame extends JFrame {
                             return false; // Invalid move (other conditions)
                         }
                     case "p":
-                        int backwardDirectionP = p.isPlayer1() ? -1 : 1;
-                        int initialRowPBlack = p.isPlayer1() ? 6 : 1;
+                        int backwardDirectionP = p.isPlayer1() ? 1 : -1;
+                        int initialRowPBlack = p.isPlayer1() ? 1 : 6;
 
-                        // Basic movement and capturing conditions
+                        // Basic movement conditions
                         if ((toCol == fromCol && toRow == fromRow + backwardDirectionP) ||
                                 (fromRow == initialRowPBlack && toCol == fromCol
                                         && toRow == fromRow + 2 * backwardDirectionP)) {
-                            // Check for capturing (diagonally)
-                            if (toCol == fromCol + 1 && board[toRow][toCol] != null
-                                    && !board[toRow][toCol].isPlayer1()) {
-                                return true; // Valid move (capture)
-                            } else if (toCol == fromCol - 1 && board[toRow][toCol] != null
-                                    && !board[toRow][toCol].isPlayer1()) {
-                                return true; // Valid move (capture)
-                            } else if (board[toRow][toCol] == null) {
+                            // Check for moving forward
+                            if (board[toRow][toCol] == null) {
                                 return true; // Valid move (no capture)
                             }
                         }
+
+                        // Capturing diagonally
+                        if (toCol == fromCol + 1 || toCol == fromCol - 1) {
+                            if (toRow == fromRow + backwardDirectionP) {
+                                // Check for capturing diagonally
+                                if (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1()) {
+                                    return true; // Valid move (capture)
+                                }
+                            }
+                        }
+
                         return false; // Invalid move
                     case "N":
                     case "n":
@@ -250,22 +263,97 @@ public class ChessGame extends JFrame {
                     case "R":
                     case "r":
                         // Rook's movement (vertical or horizontal)
-                        return toRow == fromRow || toCol == fromCol;
+                        if (toRow == fromRow) {
+                            // Horizontal movement
+                            int direction = (toCol - fromCol) > 0 ? 1 : -1;
+                            for (int col = fromCol + direction; col != toCol; col += direction) {
+                                if (board[toRow][col] != null) {
+                                    return false; // Invalid move if there is a piece in the path
+                                }
+                            }
+                        } else if (toCol == fromCol) {
+                            // Vertical movement
+                            int direction = (toRow - fromRow) > 0 ? 1 : -1;
+                            for (int row = fromRow + direction; row != toRow; row += direction) {
+                                if (board[row][toCol] != null) {
+                                    return false; // Invalid move if there is a piece in the path
+                                }
+                            }
+                        } else {
+                            return false; // Invalid move if not moving vertically or horizontally
+                        }
+
+                        // Check for capturing
+                        return board[toRow][toCol] == null || board[toRow][toCol].isPlayer1() != p.isPlayer1();
                     case "B":
                     case "b":
                         // Bishop's movement (diagonal)
-                        return Math.abs(toRow - fromRow) == Math.abs(toCol - fromCol);
+                        if (Math.abs(toRow - fromRow) != Math.abs(toCol - fromCol)) {
+                            return false; // Invalid move if not moving diagonally
+                        }
+
+                        // Determine the direction of movement
+                        int rowDirection = (toRow - fromRow) > 0 ? 1 : -1;
+                        int colDirection = (toCol - fromCol) > 0 ? 1 : -1;
+
+                        // Check for pieces in the diagonal path
+                        for (int i = 1; i < Math.abs(toRow - fromRow); i++) {
+                            int row = fromRow + i * rowDirection;
+                            int col = fromCol + i * colDirection;
+                            if (board[row][col] != null) {
+                                return false; // Invalid move if there is a piece in the path
+                            }
+                        }
+
+                        // Check for capturing
+                        return board[toRow][toCol] == null || board[toRow][toCol].isPlayer1() != p.isPlayer1();
                     case "Q":
                     case "q":
                         // Queen's movement (combination of rook and bishop)
-                        return toRow == fromRow || toCol == fromCol
-                                || Math.abs(toRow - fromRow) == Math.abs(toCol - fromCol);
+                        if (!(toRow == fromRow || toCol == fromCol
+                                || Math.abs(toRow - fromRow) == Math.abs(toCol - fromCol))) {
+                            return false; // Invalid move if not moving vertically, horizontally, or diagonally
+                        }
+
+                        // Determine the direction of movement
+                        int rowDirectionQ = Integer.compare(toRow, fromRow);
+                        int colDirectionQ = Integer.compare(toCol, fromCol);
+
+                        // Check for pieces in the path
+                        if (toRow == fromRow || toCol == fromCol) {
+                            // Rook-like movement (vertical or horizontal)
+                            for (int i = 1; i < Math.abs(toRow - fromRow) + Math.abs(toCol - fromCol); i++) {
+                                int row = fromRow + i * rowDirectionQ;
+                                int col = fromCol + i * colDirectionQ;
+                                if (board[row][col] != null) {
+                                    return false; // Invalid move if there is a piece in the path
+                                }
+                            }
+                        } else {
+                            // Bishop-like movement (diagonal)
+                            for (int i = 1; i < Math.abs(toRow - fromRow); i++) {
+                                int row = fromRow + i * rowDirectionQ;
+                                int col = fromCol + i * colDirectionQ;
+                                if (board[row][col] != null) {
+                                    return false; // Invalid move if there is a piece in the path
+                                }
+                            }
+                        }
+
+                        // Check for capturing
+                        return board[toRow][toCol] == null || board[toRow][toCol].isPlayer1() != p.isPlayer1();
                     case "K":
                     case "k":
                         // King's movement (one square in any direction)
                         int rowDiffKing = Math.abs(toRow - fromRow);
                         int colDiffKing = Math.abs(toCol - fromCol);
-                        return rowDiffKing <= 1 && colDiffKing <= 1;
+
+                        // Check for a valid move (one square in any direction)
+                        if (rowDiffKing <= 1 && colDiffKing <= 1) {
+                            // Check for capturing
+                            return board[toRow][toCol] == null || board[toRow][toCol].isPlayer1() != p.isPlayer1();
+                        }
+                        return false; // Invalid move
                     default:
                         return false;
                 }
@@ -273,6 +361,41 @@ public class ChessGame extends JFrame {
             }
 
             return false;
+        }
+
+        private boolean isKingInCheck(boolean isPlayer1) {
+            int kingRow = -1;
+            int kingCol = -1;
+
+            // Find the position of the king
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    Piece currentPiece = board[i][j];
+                    if (currentPiece != null && currentPiece.getSymbol().equalsIgnoreCase("K")
+                            && currentPiece.isPlayer1() == isPlayer1) {
+                        kingRow = i;
+                        kingCol = j;
+                        break;
+                    }
+                }
+                if (kingRow != -1 && kingCol != -1) {
+                    break;
+                }
+            }
+
+            // Check if any opponent piece can move to the king's new position
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    Piece opponentPiece = board[i][j];
+                    if (opponentPiece != null && opponentPiece.isPlayer1() != isPlayer1) {
+                        if (isValidMove(i, j, kingRow, kingCol, opponentPiece)) {
+                            return true; // King is in check
+                        }
+                    }
+                }
+            }
+
+            return false; // King is not in check
         }
     }
 
