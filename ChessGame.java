@@ -55,6 +55,7 @@ public class ChessGame extends JFrame {
     }
 
     private void updateButtonText(int row, int col, String symbol) {
+        boardButtons[row][col].setIcon(board[row][col].image);
         boardButtons[row][col].setText(symbol);
     }
 
@@ -152,10 +153,9 @@ public class ChessGame extends JFrame {
                     Piece fromTemp = board[selectedRow][selectedCol];
                     board[selectedRow][selectedCol] = null;
 
-                    clickedButton.setText(board[row][col].getSymbol());
-
-                    selectedButton.setText("");
-
+                    clickedButton.setIcon(board[row][col].image);
+                    selectedButton.setIcon(null);
+                    
                     selectedButton.setBackground(null);
 
                     boolean flag = false;
