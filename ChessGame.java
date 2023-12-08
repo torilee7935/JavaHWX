@@ -151,6 +151,7 @@ public class ChessGame extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton clickedButton = (JButton) e.getSource();
+            boolean flag = false;
 
             if (selectedButton == null) { // Highlights selected piece
                 if (!board[row][col].isEmpty() && isPlayer1Turn
@@ -194,7 +195,7 @@ public class ChessGame extends JFrame {
                         }
                     }
 
-                    boolean flag = false;
+                    flag = false;
 
                     if (isKingInCheck(isPlayer1Turn)) { // if next move places you in check, move is revoked
                         flag = true;
@@ -212,12 +213,11 @@ public class ChessGame extends JFrame {
                         } else {
                             clickedButton.setText("");
                             boardButtons[row][col].setIcon(null);
+                            selectedButton.setBackground(Color.YELLOW);
+
                         }
 
-                        if (isPlayer1Turn)
-                            selectedButton.setText(fromTemp.getSymbol());
-                        else
-                            selectedButton.setText(fromTemp.getSymbol());
+                        selectedButton.setText(fromTemp.getSymbol());
 
                     }
 
@@ -242,6 +242,7 @@ public class ChessGame extends JFrame {
                     }
 
                     selectedButton = clickedButton;
+
                     selectedButton.setBackground(Color.YELLOW);
 
                     // Switch turns
@@ -292,6 +293,7 @@ public class ChessGame extends JFrame {
                                     boardButtons[i][j].setBackground(new Color(255, 253, 208));
                             }
                         }
+
                         selectedButton = null;
                     } else
                         JOptionPane.showMessageDialog(ChessGame.this, "Invalid move!");
