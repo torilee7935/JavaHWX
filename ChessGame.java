@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ChessGame extends JFrame {
-    private JButton[][] boardButtons = new JButton[8][8];   // UI board
-    private Piece[][] board = new Piece[8][8];              // Logic board
-    private boolean isPlayer1Turn = true;                   // Checks if its white or black turn
-    private JButton selectedButton = null;                  // piece selected for move
+    private JButton[][] boardButtons = new JButton[8][8]; // UI board
+    private Piece[][] board = new Piece[8][8]; // Logic board
+    private boolean isPlayer1Turn = true; // Checks if its white or black turn
+    private JButton selectedButton = null; // piece selected for move
     private boolean gameOver = false;
 
     public ChessGame() {
@@ -58,7 +58,7 @@ public class ChessGame extends JFrame {
     }
 
     // Updates UI board
-    private void updateButtonText(int row, int col, String symbol) {    
+    private void updateButtonText(int row, int col, String symbol) {
         boardButtons[row][col].setIcon(board[row][col].image);
         boardButtons[row][col].setText(symbol);
     }
@@ -70,8 +70,8 @@ public class ChessGame extends JFrame {
         board[0][3] = new Piece("Q", true, "PieceImages/WQueen.png"); // Queen
         board[0][4] = new Piece("K", true, "PieceImages/WKing.png"); // King
         board[0][5] = new Piece("B", true, "PieceImages/WBishop.png"); // Bishop
-        board[0][6] = new Piece("N", true, "PieceImages/WRook.png"); // Rook
-        board[0][7] = new Piece("R", true, "PieceImages/WKnight.png"); // Knight
+        board[0][6] = new Piece("N", true, "PieceImages/WKnight.png"); // Rook
+        board[0][7] = new Piece("R", true, "PieceImages/WRook.png"); // Knight
         for (int i = 0; i < 8; i++) {
             board[1][i] = new Piece("P", true, "PieceImages/WPawn.png"); // Pawns
         }
@@ -88,8 +88,8 @@ public class ChessGame extends JFrame {
         board[7][3] = new Piece("q", false, "PieceImages/BQueen.png"); // Queen
         board[7][4] = new Piece("k", false, "PieceImages/BKing.png"); // King
         board[7][5] = new Piece("b", false, "PieceImages/BBishop.png"); // Bishop
-        board[7][6] = new Piece("n", false, "PieceImages/BRook.png"); // Rook
-        board[7][7] = new Piece("r", false, "PieceImages/BKnight.png"); // Knight
+        board[7][6] = new Piece("n", false, "PieceImages/BKnight.png"); // Knight
+        board[7][7] = new Piece("r", false, "PieceImages/BRook.png"); // Rook
         for (int i = 0; i < 8; i++) {
             board[6][i] = new Piece("p", false, "PieceImages/BPawn.png");// Pawns
         }
@@ -110,9 +110,9 @@ public class ChessGame extends JFrame {
                 boardButtons[i][j] = new JButton();
                 if (board[i][j] != null) {
                     Image originalImage = board[i][j].image.getImage(); // Gets image associated with this piece
-                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize  
-                    board[i][j].image = new ImageIcon(resizedImage);    // Uses resized image to update piece image
-                    boardButtons[i][j].setIcon(board[i][j].image);      // Sets image icon
+                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
+                    board[i][j].image = new ImageIcon(resizedImage); // Uses resized image to update piece image
+                    boardButtons[i][j].setIcon(board[i][j].image); // Sets image icon
                 }
                 boardButtons[i][j].addActionListener(new ChessButtonListener(i, j));
                 add(boardButtons[i][j]);
@@ -137,11 +137,11 @@ public class ChessGame extends JFrame {
 
             if (selectedButton == null) { // Highlights selected piece
                 if (!board[row][col].isEmpty() && isPlayer1Turn
-                        && Character.isUpperCase(board[row][col].getSymbol().charAt(0))){
+                        && Character.isUpperCase(board[row][col].getSymbol().charAt(0))) {
                     selectedButton = clickedButton;
                     selectedButton.setBackground(Color.YELLOW);
                 } else if (!board[row][col].isEmpty() && !isPlayer1Turn
-                    && Character.isLowerCase(board[row][col].getSymbol().charAt(0))) {
+                        && Character.isLowerCase(board[row][col].getSymbol().charAt(0))) {
                     selectedButton = clickedButton;
                     selectedButton.setBackground(Color.YELLOW);
                 }
@@ -510,10 +510,15 @@ public class ChessGame extends JFrame {
                 board[0][5] = board[0][7];
                 board[0][7] = null;
 
+                board[0][6] = board[0][4];
+                board[0][4] = null;
+
                 board[0][5].setMoved(true);
 
                 updateButtonText(0, 5, "R");
                 updateButtonText(0, 7, "");
+                updateButtonText(0, 6, "K");
+                updateButtonText(0, 4, "");
 
                 return true;
             }
@@ -524,10 +529,16 @@ public class ChessGame extends JFrame {
                 board[7][5] = board[7][7];
                 board[7][7] = null;
 
+                board[7][6] = board[7][4];
+                board[7][4] = null;
+
                 board[7][5].setMoved(true);
+                board[7][6].setMoved(true);
 
                 updateButtonText(7, 5, "r");
                 updateButtonText(7, 7, "");
+                updateButtonText(7, 6, "k");
+                updateButtonText(7, 4, "");
 
                 return true;
             }
@@ -543,10 +554,16 @@ public class ChessGame extends JFrame {
                 board[0][3] = board[0][0];
                 board[0][0] = null;
 
+                board[0][2] = board[0][4];
+                board[0][4] = null;
+
                 board[0][3].setMoved(true);
+                board[0][2].setMoved(true);
 
                 updateButtonText(0, 3, "R");
                 updateButtonText(0, 0, "");
+                updateButtonText(0, 2, "K");
+                updateButtonText(0, 4, "");
 
                 return true;
             }
@@ -557,10 +574,16 @@ public class ChessGame extends JFrame {
                 board[7][3] = board[7][0];
                 board[7][0] = null;
 
+                board[7][2] = board[7][4];
+                board[7][4] = null;
+
                 board[7][3].setMoved(true);
+                board[7][4].setMoved(true);
 
                 updateButtonText(7, 3, "r");
                 updateButtonText(7, 0, "");
+                updateButtonText(7, 2, "k");
+                updateButtonText(7, 4, "");
 
                 return true;
             }
