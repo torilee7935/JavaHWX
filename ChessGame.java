@@ -119,10 +119,12 @@ public class ChessGame extends JFrame {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 boardButtons[i][j] = new JButton();
-                /*
-                 * if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
-                 * boardButtons[i][j].setBackground(Color.BLACK);
-                 */
+
+                if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
+                    boardButtons[i][j].setBackground(new Color(210, 180, 140));
+                else
+                    boardButtons[i][j].setBackground(new Color(255, 253, 208));
+
                 if (board[i][j] != null) {
                     Image originalImage = board[i][j].image.getImage(); // Gets image associated with this piece
                     Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
@@ -182,7 +184,15 @@ public class ChessGame extends JFrame {
 
                     selectedButton.setIcon(null);
                     selectedButton.setText("");
-                    selectedButton.setBackground(null);
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+
+                            if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
+                                boardButtons[i][j].setBackground(new Color(210, 180, 140));
+                            else
+                                boardButtons[i][j].setBackground(new Color(255, 253, 208));
+                        }
+                    }
 
                     boolean flag = false;
 
@@ -203,11 +213,12 @@ public class ChessGame extends JFrame {
                             clickedButton.setText("");
                             boardButtons[row][col].setIcon(null);
                         }
+
                         if (isPlayer1Turn)
                             selectedButton.setText(fromTemp.getSymbol());
                         else
                             selectedButton.setText(fromTemp.getSymbol());
-                        isPlayer1Turn = !isPlayer1Turn;
+
                     }
 
                     if (board[row][col].getSymbol().equalsIgnoreCase("p") && isPlayer1Turn && row == 7) {
@@ -234,7 +245,8 @@ public class ChessGame extends JFrame {
                     selectedButton.setBackground(Color.YELLOW);
 
                     // Switch turns
-                    isPlayer1Turn = !isPlayer1Turn;
+                    if (!flag)
+                        isPlayer1Turn = !isPlayer1Turn;
 
                     if (isKingInCheckmate(isPlayer1Turn))
                         if (isPlayer1Turn) {
@@ -253,14 +265,33 @@ public class ChessGame extends JFrame {
                         JOptionPane.showMessageDialog(ChessGame.this, "You placed your opponent in check.");
                     }
 
-                    selectedButton.setBackground(null);
+                    // selectedButton.setBackground(null);
                     selectedButton = null;
+
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
+
+                                boardButtons[i][j].setBackground(new Color(210, 180, 140));
+                            else
+                                boardButtons[i][j].setBackground(new Color(255, 253, 208));
+                        }
+                    }
                 } else if (gameOver) {
                     JOptionPane.showMessageDialog(ChessGame.this, "Game is over.");
 
                 } else {
                     if (selectedButton == clickedButton) {
-                        selectedButton.setBackground(null);
+
+                        for (int i = 0; i < 8; i++) {
+                            for (int j = 0; j < 8; j++) {
+
+                                if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
+                                    boardButtons[i][j].setBackground(new Color(210, 180, 140));
+                                else
+                                    boardButtons[i][j].setBackground(new Color(255, 253, 208));
+                            }
+                        }
                         selectedButton = null;
                     } else
                         JOptionPane.showMessageDialog(ChessGame.this, "Invalid move!");
