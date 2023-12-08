@@ -20,6 +20,7 @@ public class ChessGame extends JFrame {
 
     private class Piece {
         private String symbol;
+        private int moveCount;
         private boolean isPlayer1;
         private boolean hasMoved;
         private String imagePath;
@@ -29,6 +30,7 @@ public class ChessGame extends JFrame {
             this.symbol = symbol;
             this.isPlayer1 = isPlayer1;
             this.hasMoved = false;
+            this.moveCount = 0;
             this.imagePath = imagePath;
             this.image = new ImageIcon(imagePath);
         }
@@ -43,6 +45,10 @@ public class ChessGame extends JFrame {
 
         public boolean hasMoved() {
             return hasMoved;
+        }
+
+        public void addMoveCount() {
+            this.moveCount += 1;
         }
 
         public void setMoved(boolean hasMoved) {
@@ -113,6 +119,10 @@ public class ChessGame extends JFrame {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 boardButtons[i][j] = new JButton();
+                /*
+                 * if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
+                 * boardButtons[i][j].setBackground(Color.BLACK);
+                 */
                 if (board[i][j] != null) {
                     Image originalImage = board[i][j].image.getImage(); // Gets image associated with this piece
                     Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
@@ -302,6 +312,7 @@ public class ChessGame extends JFrame {
                                         && toRow == fromRow + 2 * backwardDirectionP)) {
                             // Check for forward move
                             if (board[toRow][toCol] == null) {
+                                p.addMoveCount();
                                 return true;
                             }
                         }
@@ -309,10 +320,22 @@ public class ChessGame extends JFrame {
                         if (toCol == fromCol + 1 || toCol == fromCol - 1) {
                             if (toRow == fromRow + backwardDirectionP) {
                                 if (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1()) {
+                                    p.addMoveCount();
                                     return true;
                                 }
                             }
                         }
+
+                        // check of en passant
+
+                        /*
+                         * if ((toCol == fromCol + 1 && board[toCol][toRow].moveCount == 1 && toRow == 3
+                         * && fromRow == 2)
+                         * || (toCol == fromCol - 1 && board[toCol][toRow].moveCount == 1
+                         * && toRow == 3 && fromRow == 2)) {
+                         * return true;
+                         * }
+                         */
 
                         return false;
                     case "n":
