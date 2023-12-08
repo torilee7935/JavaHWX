@@ -6,46 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ChessGame extends JFrame {
-    private JButton[][] boardButtons = new JButton[8][8];
-    private Piece[][] board = new Piece[8][8];
-    private boolean isPlayer1Turn = true;
-    private JButton selectedButton = null;
+    private JButton[][] boardButtons = new JButton[8][8];   // UI board
+    private Piece[][] board = new Piece[8][8];              // Logic board
+    private boolean isPlayer1Turn = true;                   // Checks if its white or black turn
+    private JButton selectedButton = null;                  // piece selected for move
     private boolean gameOver = false;
-
-    public ImageIcon getImage(String symbol) {
-        switch (symbol) {
-            case "P":
-                return new ImageIcon("PieceImages/WPawn.png");
-            case "p":
-                return new ImageIcon("PieceImages/BPawn.png");
-            case "B":
-                return new ImageIcon("PieceImages/WBishop.png");
-            case "b":
-                return new ImageIcon("PieceImages/BBishop.png");
-            case "R":
-                return new ImageIcon("PieceImages/WRook.png");
-            case "r":
-                return new ImageIcon("PieceImages/BRook.png");
-            case "K":
-                return new ImageIcon("PieceImages/WKing.png");
-            case "k":
-                return new ImageIcon("PieceImages/BKing.png");
-            case "Q":
-                return new ImageIcon("PieceImages/WQueen.png");
-            case "q":
-                return new ImageIcon("PieceImages/BQueen.png");
-            case "N":
-                return new ImageIcon("PieceImages/WKnight.png");
-            case "n":
-                return new ImageIcon("PieceImages/BKnight.png");
-        }
-        return null;
-
-    }
 
     public ChessGame() {
         initializeBoard();
         initializeUI();
+
     }
 
     private class Piece {
@@ -61,7 +31,6 @@ public class ChessGame extends JFrame {
             this.hasMoved = false;
             this.imagePath = imagePath;
             this.image = new ImageIcon(imagePath);
-
         }
 
         public String getSymbol() {
@@ -88,11 +57,10 @@ public class ChessGame extends JFrame {
         }
     }
 
-    private void updateButtonText(int row, int col, String symbol) {
+    // Updates UI board
+    private void updateButtonText(int row, int col, String symbol) {    
         boardButtons[row][col].setIcon(board[row][col].image);
         boardButtons[row][col].setText(symbol);
-        boardButtons[row][col].setIcon(getImage(symbol));
-
     }
 
     private void initializeBoard() {
@@ -141,11 +109,10 @@ public class ChessGame extends JFrame {
             for (int j = 0; j < 8; j++) {
                 boardButtons[i][j] = new JButton();
                 if (board[i][j] != null) {
-                    Image originalImage = board[i][j].image.getImage(); // Extract Image from ImageIcon
-                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
-                                                                                                                     // Image
-                    board[i][j].image = new ImageIcon(resizedImage); // Create new ImageIcon from resized Image
-                    boardButtons[i][j].setIcon(board[i][j].image);
+                    Image originalImage = board[i][j].image.getImage(); // Gets image associated with this piece
+                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize  
+                    board[i][j].image = new ImageIcon(resizedImage);    // Uses resized image to update piece image
+                    boardButtons[i][j].setIcon(board[i][j].image);      // Sets image icon
                 }
                 boardButtons[i][j].addActionListener(new ChessButtonListener(i, j));
                 add(boardButtons[i][j]);
@@ -170,11 +137,11 @@ public class ChessGame extends JFrame {
 
             if (selectedButton == null) { // Highlights selected piece
                 if (!board[row][col].isEmpty() && isPlayer1Turn
-                        && Character.isUpperCase(board[row][col].getSymbol().charAt(0))) {
+                        && Character.isUpperCase(board[row][col].getSymbol().charAt(0))){
                     selectedButton = clickedButton;
                     selectedButton.setBackground(Color.YELLOW);
                 } else if (!board[row][col].isEmpty() && !isPlayer1Turn
-                        && Character.isLowerCase(board[row][col].getSymbol().charAt(0))) {
+                    && Character.isLowerCase(board[row][col].getSymbol().charAt(0))) {
                     selectedButton = clickedButton;
                     selectedButton.setBackground(Color.YELLOW);
                 }
@@ -209,13 +176,14 @@ public class ChessGame extends JFrame {
                         JOptionPane.showMessageDialog(ChessGame.this, "Moving there puts you in Check.");
 
                         board[selectedRow][selectedCol] = board[row][col];
-                        boardButtons[selectedRow][selectedCol].setIcon(getImage(fromTemp.getSymbol()));
+                        boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image);
 
                         board[row][col] = toTemp;
 
                         if (occupied) {
+                            boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image);
                             clickedButton.setText(toTemp.getSymbol());
-                            boardButtons[row][col].setIcon(getImage(toTemp.getSymbol()));
+                            clickedButton.setIcon(toTemp.image);
                         } else {
                             clickedButton.setText("");
                             boardButtons[row][col].setIcon(null);
