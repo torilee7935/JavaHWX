@@ -58,9 +58,21 @@ public class ChessGame extends JFrame {
     }
 
     // Updates UI board
+<<<<<<< Updated upstream
     private void updateButtonText(int row, int col, String symbol) {
         boardButtons[row][col].setIcon(board[row][col].image);
         boardButtons[row][col].setText(symbol);
+=======
+    private void updateButtonText(int row, int col, String symbol) {    
+        if(symbol != ""){
+            boardButtons[row][col].setIcon(board[row][col].image);
+            boardButtons[row][col].setText(symbol);
+        }
+        else{
+            boardButtons[row][col].setIcon(null);
+            boardButtons[row][col].setText(symbol);
+        }
+>>>>>>> Stashed changes
     }
 
     private void initializeBoard() {
