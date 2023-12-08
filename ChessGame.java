@@ -12,6 +12,37 @@ public class ChessGame extends JFrame {
     private JButton selectedButton = null;
     private boolean gameOver = false;
 
+    public ImageIcon getImage(String symbol) {
+        switch (symbol) {
+            case "P":
+                return new ImageIcon("PieceImages/WPawn.png");
+            case "p":
+                return new ImageIcon("PieceImages/BPawn.png");
+            case "B":
+                return new ImageIcon("PieceImages/WBishop.png");
+            case "b":
+                return new ImageIcon("PieceImages/BBishop.png");
+            case "R":
+                return new ImageIcon("PieceImages/WRook.png");
+            case "r":
+                return new ImageIcon("PieceImages/BRook.png");
+            case "K":
+                return new ImageIcon("PieceImages/WKing.png");
+            case "k":
+                return new ImageIcon("PieceImages/BKing.png");
+            case "Q":
+                return new ImageIcon("PieceImages/WQueen.png");
+            case "q":
+                return new ImageIcon("PieceImages/BQueen.png");
+            case "N":
+                return new ImageIcon("PieceImages/WKnight.png");
+            case "n":
+                return new ImageIcon("PieceImages/BKnight.png");
+        }
+        return null;
+
+    }
+
     public ChessGame() {
         initializeBoard();
         initializeUI();
@@ -60,6 +91,8 @@ public class ChessGame extends JFrame {
     private void updateButtonText(int row, int col, String symbol) {
         boardButtons[row][col].setIcon(board[row][col].image);
         boardButtons[row][col].setText(symbol);
+        boardButtons[row][col].setIcon(getImage(symbol));
+
     }
 
     private void initializeBoard() {
@@ -71,10 +104,10 @@ public class ChessGame extends JFrame {
         board[0][5] = new Piece("B", true, "PieceImages/WBishop.png"); // Bishop
         board[0][6] = new Piece("N", true, "PieceImages/WRook.png"); // Rook
         board[0][7] = new Piece("R", true, "PieceImages/WKnight.png"); // Knight
-        for(int i = 0; i < 8; i++){
+        for (int i = 0; i < 8; i++) {
             board[1][i] = new Piece("P", true, "PieceImages/WPawn.png"); // Pawns
         }
-        
+
         for (int i = 2; i < 6; i++) {
             for (int j = 0; j < 8; j++) {
                 board[i][j] = null;
@@ -89,7 +122,7 @@ public class ChessGame extends JFrame {
         board[7][5] = new Piece("b", false, "PieceImages/BBishop.png"); // Bishop
         board[7][6] = new Piece("n", false, "PieceImages/BRook.png"); // Rook
         board[7][7] = new Piece("r", false, "PieceImages/BKnight.png"); // Knight
-        for(int i = 0; i < 8; i++){
+        for (int i = 0; i < 8; i++) {
             board[6][i] = new Piece("p", false, "PieceImages/BPawn.png");// Pawns
         }
 
@@ -100,7 +133,7 @@ public class ChessGame extends JFrame {
         setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(8, 8));
-    
+
         int iconWidth = getWidth() / 8;
         int iconHeight = getHeight() / 8;
         // Create buttons array
@@ -109,10 +142,11 @@ public class ChessGame extends JFrame {
                 boardButtons[i][j] = new JButton();
                 if (board[i][j] != null) {
                     Image originalImage = board[i][j].image.getImage(); // Extract Image from ImageIcon
-                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize Image
+                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
+                                                                                                                     // Image
                     board[i][j].image = new ImageIcon(resizedImage); // Create new ImageIcon from resized Image
-                    boardButtons[i][j].setIcon(board[i][j].image); 
-                } 
+                    boardButtons[i][j].setIcon(board[i][j].image);
+                }
                 boardButtons[i][j].addActionListener(new ChessButtonListener(i, j));
                 add(boardButtons[i][j]);
             }
@@ -162,8 +196,10 @@ public class ChessGame extends JFrame {
                     board[selectedRow][selectedCol] = null;
 
                     clickedButton.setIcon(board[row][col].image);
-                    selectedButton.setIcon(null);
+                    boardButtons[selectedRow][selectedCol].setIcon(null);
 
+                    selectedButton.setIcon(null);
+                    selectedButton.setText("");
                     selectedButton.setBackground(null);
 
                     boolean flag = false;
@@ -173,14 +209,17 @@ public class ChessGame extends JFrame {
                         JOptionPane.showMessageDialog(ChessGame.this, "Moving there puts you in Check.");
 
                         board[selectedRow][selectedCol] = board[row][col];
+                        boardButtons[selectedRow][selectedCol].setIcon(getImage(fromTemp.getSymbol()));
 
                         board[row][col] = toTemp;
 
-                        if (occupied)
+                        if (occupied) {
                             clickedButton.setText(toTemp.getSymbol());
-                        else
+                            boardButtons[row][col].setIcon(getImage(toTemp.getSymbol()));
+                        } else {
                             clickedButton.setText("");
-
+                            boardButtons[row][col].setIcon(null);
+                        }
                         if (isPlayer1Turn)
                             selectedButton.setText(fromTemp.getSymbol());
                         else
