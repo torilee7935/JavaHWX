@@ -21,13 +21,16 @@ public class ChessGame extends JFrame {
         private String symbol;
         private boolean isPlayer1;
         private boolean hasMoved;
+        private String imagePath;
         private ImageIcon image;
 
-        public Piece(String symbol, boolean isPlayer1, ImageIcon image) {
+        public Piece(String symbol, boolean isPlayer1, String imagePath) {
             this.symbol = symbol;
             this.isPlayer1 = isPlayer1;
             this.hasMoved = false;
-            this.image = image;
+            this.imagePath = imagePath;
+            this.image = new ImageIcon(imagePath);
+
         }
 
         public String getSymbol() {
@@ -60,16 +63,16 @@ public class ChessGame extends JFrame {
     }
 
     private void initializeBoard() {
-        board[0][0] = new Piece("R", true, new ImageIcon("PieceImages/WRook.png")); // Rook
-        board[0][1] = new Piece("N", true, new ImageIcon("PieceImages/WKnight.png")); // Knight
-        board[0][2] = new Piece("B", true, new ImageIcon("PieceImages/WBishop.png")); // Bishop
-        board[0][3] = new Piece("Q", true, new ImageIcon("PieceImages/WQueen.png")); // Queen
-        board[0][4] = new Piece("K", true, new ImageIcon("PieceImages/WKing.png")); // King
-        board[0][5] = new Piece("B", true, new ImageIcon("PieceImages/WBishop.png")); // Bishop
-        board[0][6] = new Piece("N", true, new ImageIcon("PieceImages/WRook.png")); // Rook
-        board[0][7] = new Piece("R", true, new ImageIcon("PieceImages/WKnight.png")); // Knight
+        board[0][0] = new Piece("R", true, "PieceImages/WRook.png"); // Rook
+        board[0][1] = new Piece("N", true, "PieceImages/WKnight.png"); // Knight
+        board[0][2] = new Piece("B", true, "PieceImages/WBishop.png"); // Bishop
+        board[0][3] = new Piece("Q", true, "PieceImages/WQueen.png"); // Queen
+        board[0][4] = new Piece("K", true, "PieceImages/WKing.png"); // King
+        board[0][5] = new Piece("B", true, "PieceImages/WBishop.png"); // Bishop
+        board[0][6] = new Piece("N", true, "PieceImages/WRook.png"); // Rook
+        board[0][7] = new Piece("R", true, "PieceImages/WKnight.png"); // Knight
         for(int i = 0; i < 8; i++){
-            board[1][i] = new Piece("P", true, new ImageIcon("PieceImages/WPawn.png")); // Pawns
+            board[1][i] = new Piece("P", true, "PieceImages/WPawn.png"); // Pawns
         }
         
         for (int i = 2; i < 6; i++) {
@@ -78,16 +81,16 @@ public class ChessGame extends JFrame {
             }
         }
 
-        board[7][0] = new Piece("r", false, new ImageIcon("PieceImages/BRook.png")); // Rook
-        board[7][1] = new Piece("n", false, new ImageIcon("PieceImages/BKnight.png")); // Knight
-        board[7][2] = new Piece("b", false, new ImageIcon("PieceImages/BBishop.png")); // Bishop
-        board[7][3] = new Piece("q", false, new ImageIcon("PieceImages/BQueen.png")); // Queen
-        board[7][4] = new Piece("k", false, new ImageIcon("PieceImages/BKing.png")); // King
-        board[7][5] = new Piece("b", false, new ImageIcon("PieceImages/BBishop.png")); // Bishop
-        board[7][6] = new Piece("n", false, new ImageIcon("PieceImages/BRook.png")); // Rook
-        board[7][7] = new Piece("r", false, new ImageIcon("PieceImages/BKnight.png")); // Knight
+        board[7][0] = new Piece("r", false, "PieceImages/BRook.png"); // Rook
+        board[7][1] = new Piece("n", false, "PieceImages/BKnight.png"); // Knight
+        board[7][2] = new Piece("b", false, "PieceImages/BBishop.png"); // Bishop
+        board[7][3] = new Piece("q", false, "PieceImages/BQueen.png"); // Queen
+        board[7][4] = new Piece("k", false, "PieceImages/BKing.png"); // King
+        board[7][5] = new Piece("b", false, "PieceImages/BBishop.png"); // Bishop
+        board[7][6] = new Piece("n", false, "PieceImages/BRook.png"); // Rook
+        board[7][7] = new Piece("r", false, "PieceImages/BKnight.png"); // Knight
         for(int i = 0; i < 8; i++){
-            board[6][i] = new Piece("p", false, new ImageIcon("PieceImages/BPawn.png"));// Pawns
+            board[6][i] = new Piece("p", false, "PieceImages/BPawn.png");// Pawns
         }
 
     }
@@ -97,13 +100,18 @@ public class ChessGame extends JFrame {
         setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(8, 8));
-
+    
+        int iconWidth = getWidth() / 8;
+        int iconHeight = getHeight() / 8;
         // Create buttons array
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 boardButtons[i][j] = new JButton();
                 if (board[i][j] != null) {
-                    boardButtons[i][j].setIcon(board[i][j].image);
+                    Image originalImage = board[i][j].image.getImage(); // Extract Image from ImageIcon
+                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize Image
+                    board[i][j].image = new ImageIcon(resizedImage); // Create new ImageIcon from resized Image
+                    boardButtons[i][j].setIcon(board[i][j].image); 
                 } 
                 boardButtons[i][j].addActionListener(new ChessButtonListener(i, j));
                 add(boardButtons[i][j]);
@@ -155,7 +163,7 @@ public class ChessGame extends JFrame {
 
                     clickedButton.setIcon(board[row][col].image);
                     selectedButton.setIcon(null);
-                    
+
                     selectedButton.setBackground(null);
 
                     boolean flag = false;
