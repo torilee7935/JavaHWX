@@ -2,25 +2,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class ChessGame extends JFrame {
     private JButton[][] boardButtons = new JButton[8][8]; // UI board
     private Piece[][] board = new Piece[8][8]; // Logic board
-    private boolean isPlayer1Turn = true; // Checks if its white or black turn
+    private boolean isPlayer1Turn = true; // Checks if its white(true) or black(false) turn
     private JButton selectedButton = null; // piece selected for move
     private boolean gameOver = false;
-
-    public ChessGame() {
-        initializeBoard();
-        initializeUI();
-
-    }
+    private int iconWidth = 0; // for image sizing
+    private int iconHeight = 0;
 
     private class Piece {
         private String symbol;
-        private int moveCount;
         private boolean isPlayer1;
         private boolean hasMoved;
         private String imagePath;
@@ -30,7 +23,6 @@ public class ChessGame extends JFrame {
             this.symbol = symbol;
             this.isPlayer1 = isPlayer1;
             this.hasMoved = false;
-            this.moveCount = 0;
             this.imagePath = imagePath;
             this.image = new ImageIcon(imagePath);
         }
@@ -47,10 +39,6 @@ public class ChessGame extends JFrame {
             return hasMoved;
         }
 
-        public void addMoveCount() {
-            this.moveCount += 1;
-        }
-
         public void setMoved(boolean hasMoved) {
             this.hasMoved = hasMoved;
         }
@@ -62,16 +50,9 @@ public class ChessGame extends JFrame {
                 return false;
         }
     }
-
-    // Updates UI board
-    private void updateButtonText(int row, int col, String symbol) {
-        if (symbol != "") {
-            boardButtons[row][col].setIcon(board[row][col].image);
-            boardButtons[row][col].setText(symbol);
-        } else {
-            boardButtons[row][col].setIcon(null);
-            boardButtons[row][col].setText(symbol);
-        }
+    public ChessGame() {
+        initializeBoard();
+        initializeUI();
     }
 
     private void initializeBoard() {
@@ -81,26 +62,24 @@ public class ChessGame extends JFrame {
         board[0][3] = new Piece("Q", true, "PieceImages/WQueen.png"); // Queen
         board[0][4] = new Piece("K", true, "PieceImages/WKing.png"); // King
         board[0][5] = new Piece("B", true, "PieceImages/WBishop.png"); // Bishop
-        board[0][6] = new Piece("N", true, "PieceImages/WKnight.png"); // Rook
-        board[0][7] = new Piece("R", true, "PieceImages/WRook.png"); // Knight
+        board[0][6] = new Piece("N", true, "PieceImages/WKnight.png"); // Knight
+        board[0][7] = new Piece("R", true, "PieceImages/WRook.png"); // Rook
         for (int i = 0; i < 8; i++) {
             board[1][i] = new Piece("P", true, "PieceImages/WPawn.png"); // Pawns
         }
-
-        for (int i = 2; i < 6; i++) {
+        for (int i = 2; i < 6; i++) { // middle rows 
             for (int j = 0; j < 8; j++) {
                 board[i][j] = null;
             }
         }
-
         board[7][0] = new Piece("r", false, "PieceImages/BRook.png"); // Rook
         board[7][1] = new Piece("n", false, "PieceImages/BKnight.png"); // Knight
         board[7][2] = new Piece("b", false, "PieceImages/BBishop.png"); // Bishop
         board[7][3] = new Piece("q", false, "PieceImages/BQueen.png"); // Queen
         board[7][4] = new Piece("k", false, "PieceImages/BKing.png"); // King
         board[7][5] = new Piece("b", false, "PieceImages/BBishop.png"); // Bishop
-        board[7][6] = new Piece("n", false, "PieceImages/BKnight.png"); // Knight
-        board[7][7] = new Piece("r", false, "PieceImages/BRook.png"); // Rook
+        board[7][6] = new Piece("n", false, "PieceImages/BKnight.png"); // Rook
+        board[7][7] = new Piece("r", false, "PieceImages/BRook.png"); // Knight
         for (int i = 0; i < 8; i++) {
             board[6][i] = new Piece("p", false, "PieceImages/BPawn.png");// Pawns
         }
@@ -112,31 +91,49 @@ public class ChessGame extends JFrame {
         setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(8, 8));
+        iconWidth = getWidth() / 8;
+        iconHeight = getHeight() / 8;
 
-        int iconWidth = getWidth() / 8;
-        int iconHeight = getHeight() / 8;
         // Create buttons array
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                boardButtons[i][j] = new JButton();
-
-                if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
-                    boardButtons[i][j].setBackground(new Color(210, 180, 140));
-                else
-                    boardButtons[i][j].setBackground(new Color(255, 253, 208));
-
+                boardButtons[i][j] = new JButton(); // New button on UI board
                 if (board[i][j] != null) {
-                    Image originalImage = board[i][j].image.getImage(); // Gets image associated with this piece
-                    Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
-                    board[i][j].image = new ImageIcon(resizedImage); // Uses resized image to update piece image
-                    boardButtons[i][j].setIcon(board[i][j].image); // Sets image icon
+                    resizeImage(boardButtons[i][j], board[i][j]);   // Resizes image to fit screen
                 }
                 boardButtons[i][j].addActionListener(new ChessButtonListener(i, j));
                 add(boardButtons[i][j]);
             }
         }
-
+        updateBoardPattern();   // Sets the checkered board pattern
         setVisible(true);
+    }
+
+    private void resizeImage(JButton buttonImageBoard, Piece pieceBoard){
+        Image originalImage = pieceBoard.image.getImage(); // Gets image associated with this piece
+        Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
+        pieceBoard.image = new ImageIcon(resizedImage); // Uses resized image to update piece image
+        buttonImageBoard.setIcon(pieceBoard.image); // Sets image icon
+    }
+
+    // Updates UI board
+    private void updateButtonText(int row, int col, String symbol) {
+        if (symbol != "") {
+            boardButtons[row][col].setIcon(board[row][col].image);
+        } else {
+            boardButtons[row][col].setIcon(null);
+        }
+    }
+    // Makes the checkered board pattern
+    private void updateBoardPattern(){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
+                    boardButtons[i][j].setBackground(new Color(210, 180, 140));
+                else
+                    boardButtons[i][j].setBackground(new Color(255, 253, 208));
+            }
+        }
     }
 
     private class ChessButtonListener implements ActionListener {
@@ -146,159 +143,6 @@ public class ChessGame extends JFrame {
         public ChessButtonListener(int row, int col) {
             this.row = row;
             this.col = col;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JButton clickedButton = (JButton) e.getSource();
-            boolean flag = false;
-
-            if (selectedButton == null) { // Highlights selected piece
-                if (!board[row][col].isEmpty() && isPlayer1Turn
-                        && Character.isUpperCase(board[row][col].getSymbol().charAt(0))) {
-                    selectedButton = clickedButton;
-                    selectedButton.setBackground(Color.YELLOW);
-                } else if (!board[row][col].isEmpty() && !isPlayer1Turn
-                        && Character.isLowerCase(board[row][col].getSymbol().charAt(0))) {
-                    selectedButton = clickedButton;
-                    selectedButton.setBackground(Color.YELLOW);
-                }
-            } else {
-                // Moves selected piece if valid
-                int selectedRow = getButtonRow(selectedButton);
-                int selectedCol = getButtonCol(selectedButton);
-
-                if (isValidMove(selectedRow, selectedCol, row, col, board[selectedRow][selectedCol])) {
-                    Piece toTemp = board[row][col];
-
-                    boolean occupied = false;
-
-                    if (toTemp != null)
-                        occupied = true;
-
-                    board[row][col] = board[selectedRow][selectedCol];
-                    Piece fromTemp = board[selectedRow][selectedCol];
-                    board[selectedRow][selectedCol] = null;
-
-                    clickedButton.setIcon(board[row][col].image);
-                    boardButtons[selectedRow][selectedCol].setIcon(null);
-
-                    selectedButton.setIcon(null);
-                    selectedButton.setText("");
-                    for (int i = 0; i < 8; i++) {
-                        for (int j = 0; j < 8; j++) {
-
-                            if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
-                                boardButtons[i][j].setBackground(new Color(210, 180, 140));
-                            else
-                                boardButtons[i][j].setBackground(new Color(255, 253, 208));
-                        }
-                    }
-
-                    flag = false;
-
-                    if (isKingInCheck(isPlayer1Turn)) { // if next move places you in check, move is revoked
-                        flag = true;
-                        JOptionPane.showMessageDialog(ChessGame.this, "Moving there puts you in Check.");
-
-                        board[selectedRow][selectedCol] = board[row][col];
-                        boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image);
-
-                        board[row][col] = toTemp;
-
-                        if (occupied) {
-                            boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image);
-                            clickedButton.setText(toTemp.getSymbol());
-                            clickedButton.setIcon(toTemp.image);
-                        } else {
-                            clickedButton.setText("");
-                            boardButtons[row][col].setIcon(null);
-                            selectedButton.setBackground(Color.YELLOW);
-
-                        }
-
-                        selectedButton.setText(fromTemp.getSymbol());
-
-                    }
-
-                    if (board[row][col].getSymbol().equalsIgnoreCase("p") && isPlayer1Turn && row == 7) {
-                        updateButtonText(row, col, "Q");
-                        board[row][col] = new Piece("Q", true, "PieceImages/WQueen.png");
-
-                        Image originalImage = board[row][col].image.getImage(); // Gets image associated with this piece
-                        Image resizedImage = originalImage.getScaledInstance(getWidth() / 8, getHeight() / 8,
-                                Image.SCALE_SMOOTH); // Resize
-                        board[row][col].image = new ImageIcon(resizedImage); // Uses resized image to update piece image
-                        boardButtons[row][col].setIcon(board[row][col].image); // Sets image icon
-                    } else if (board[row][col].getSymbol().equalsIgnoreCase("p") && !isPlayer1Turn && row == 0) {
-                        updateButtonText(row, col, "q");
-                        board[row][col] = new Piece("q", false, "PieceImages/BQueen.png");
-
-                        Image originalImage = board[row][col].image.getImage(); // Gets image associated with this piece
-                        Image resizedImage = originalImage.getScaledInstance(getWidth() / 8, getHeight() / 8,
-                                Image.SCALE_SMOOTH); // Resize
-                        board[row][col].image = new ImageIcon(resizedImage); // Uses resized image to update piece image
-                        boardButtons[row][col].setIcon(board[row][col].image); // Sets image icon
-                    }
-
-                    selectedButton = clickedButton;
-
-                    selectedButton.setBackground(Color.YELLOW);
-
-                    // Switch turns
-                    if (!flag)
-                        isPlayer1Turn = !isPlayer1Turn;
-
-                    if (isKingInCheckmate(isPlayer1Turn))
-                        if (isPlayer1Turn) {
-                            JOptionPane.showMessageDialog(ChessGame.this,
-                                    "You have been placed in checkmate, Black Wins!");
-                            gameOver = true;
-                        } else {
-                            JOptionPane.showMessageDialog(ChessGame.this,
-                                    "You have been placed in checkmate, White Wins!");
-                            gameOver = true;
-                        }
-
-                    boolean isOpponentInCheck = isKingInCheck(isPlayer1Turn);
-
-                    if (isOpponentInCheck && !flag) {
-                        JOptionPane.showMessageDialog(ChessGame.this, "You placed your opponent in check.");
-                    }
-
-                    // selectedButton.setBackground(null);
-                    selectedButton = null;
-
-                    for (int i = 0; i < 8; i++) {
-                        for (int j = 0; j < 8; j++) {
-                            if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
-
-                                boardButtons[i][j].setBackground(new Color(210, 180, 140));
-                            else
-                                boardButtons[i][j].setBackground(new Color(255, 253, 208));
-                        }
-                    }
-                } else if (gameOver) {
-                    JOptionPane.showMessageDialog(ChessGame.this, "Game is over.");
-
-                } else {
-                    if (selectedButton == clickedButton) {
-
-                        for (int i = 0; i < 8; i++) {
-                            for (int j = 0; j < 8; j++) {
-
-                                if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
-                                    boardButtons[i][j].setBackground(new Color(210, 180, 140));
-                                else
-                                    boardButtons[i][j].setBackground(new Color(255, 253, 208));
-                            }
-                        }
-
-                        selectedButton = null;
-                    } else
-                        JOptionPane.showMessageDialog(ChessGame.this, "Invalid move!");
-                }
-            }
         }
 
         private int getButtonRow(JButton button) {
@@ -323,6 +167,105 @@ public class ChessGame extends JFrame {
             return -1;
         }
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JButton clickedButton = (JButton) e.getSource();
+            boolean flag = false;
+
+            if (selectedButton == null) { // Highlights a yellow box for selected piece
+                if (!board[row][col].isEmpty() && isPlayer1Turn
+                        && Character.isUpperCase(board[row][col].getSymbol().charAt(0))) {
+                    selectedButton = clickedButton; // Saves the piece that is going to be moved
+                    selectedButton.setBackground(Color.YELLOW);
+                } else if (!board[row][col].isEmpty() && !isPlayer1Turn
+                        && Character.isLowerCase(board[row][col].getSymbol().charAt(0))) {
+                    selectedButton = clickedButton; // Saves the piece that is going to be moved
+                    selectedButton.setBackground(Color.YELLOW);
+                }
+            } else {
+                // Piece that will be moved
+                int selectedRow = getButtonRow(selectedButton);
+                int selectedCol = getButtonCol(selectedButton);
+                Piece fromTemp = board[selectedRow][selectedCol]; // From the button selected
+                Piece toTemp = board[row][col]; // To where the piece will be move
+                boolean occupied = false; // occupied flag if there is a piece
+
+                // if its a valid move it will update the piece board/UI board and also handle special cases(king in check/checkMate, upgrade pawn to king, etc)
+                if (isValidMove(selectedRow, selectedCol, row, col, board[selectedRow][selectedCol])) {
+                    if (toTemp != null)
+                        occupied = true;
+
+                    board[row][col] = fromTemp;     // Updates the logic board with correct piece
+                    board[selectedRow][selectedCol] = null; // Removes piece from previous spot
+                    clickedButton.setIcon(board[row][col].image);   // Puts updated image on button
+                    selectedButton.setIcon(null); // Removes image from where piece moved 
+                    updateBoardPattern();
+
+                    flag = false;
+
+                    if (isKingInCheck(isPlayer1Turn)) { // if next move places you in check, move is revoked
+                        flag = true;
+                        JOptionPane.showMessageDialog(ChessGame.this, "Moving there puts you in Check.");
+                        board[selectedRow][selectedCol] = board[row][col]; // Resets the moved piece to original spot 
+                        boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image); // Resets the image 
+                        board[row][col] = toTemp; // Resets logic board of the spot it was supposed to be moved to       
+
+                        if (occupied) { // if there was a piece, resets that image
+                            boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image);
+                            clickedButton.setIcon(toTemp.image);
+                        } else {
+                            boardButtons[row][col].setIcon(null);
+                            selectedButton.setBackground(Color.YELLOW);
+                        }
+
+                    }
+                    // If pawn reaches other side it becomes a queen
+                    if (board[row][col].getSymbol().equalsIgnoreCase("p") && isPlayer1Turn && row == 7) {
+                        updateButtonText(row, col, "Q");
+                        board[row][col] = new Piece("Q", true, "PieceImages/WQueen.png");
+                        resizeImage(boardButtons[row][col], board[row][col]);
+                    } else if (board[row][col].getSymbol().equalsIgnoreCase("p") && !isPlayer1Turn && row == 0) {
+                        updateButtonText(row, col, "q");
+                        board[row][col] = new Piece("q", false, "PieceImages/BQueen.png");
+                        resizeImage(boardButtons[row][col], board[row][col]);
+                    }
+                    selectedButton = clickedButton;
+                    selectedButton.setBackground(Color.YELLOW);
+                    // Switch turns
+                    if (!flag)
+                        isPlayer1Turn = !isPlayer1Turn;
+                    // Checks for checkmate
+                    if (isKingInCheckmate(isPlayer1Turn)){
+                        if (isPlayer1Turn) {
+                            JOptionPane.showMessageDialog(ChessGame.this,
+                                    "You have been placed in checkmate, Black Wins!");
+                            gameOver = true;
+                        } else {
+                            JOptionPane.showMessageDialog(ChessGame.this,
+                                    "You have been placed in checkmate, White Wins!");
+                            gameOver = true;
+                        }
+                    }
+                    // Checks if opponent got put in check
+                    if (isKingInCheck(isPlayer1Turn) && !flag) {
+                        JOptionPane.showMessageDialog(ChessGame.this, "You placed your opponent in check.");
+                    }
+                    selectedButton = null;
+                    updateBoardPattern();
+                } else if (gameOver) {
+                    JOptionPane.showMessageDialog(ChessGame.this, "Game is over.");
+                } else {
+                    if (selectedButton == clickedButton) {
+                        selectedButton = null;
+                        updateBoardPattern();
+                    } else{ // if invalid move, reset selected button
+                        selectedButton = null;
+                        JOptionPane.showMessageDialog(ChessGame.this, "Invalid move!");
+                    }
+                }
+            } // End of else (selectedButton NOT null)
+        } // End of chessPieceListner
+
         private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol, Piece p) {
             if (toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
                 return false;
@@ -331,10 +274,10 @@ public class ChessGame extends JFrame {
             if (gameOver)
                 return false;
 
-            // Check if the destination is empty or has an opponent's piece
+            // Checks if the destination is empty or has an opponent's piece
             if (board[toRow][toCol] == null
                     || (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1())) {
-
+                // Finds which piece p is
                 switch (p.getSymbol().toLowerCase()) {
                     case "p":
                         int backwardDirectionP = p.isPlayer1() ? 1 : -1;
@@ -345,7 +288,6 @@ public class ChessGame extends JFrame {
                                         && toRow == fromRow + 2 * backwardDirectionP)) {
                             // Check for forward move
                             if (board[toRow][toCol] == null) {
-                                p.addMoveCount();
                                 return true;
                             }
                         }
@@ -353,23 +295,10 @@ public class ChessGame extends JFrame {
                         if (toCol == fromCol + 1 || toCol == fromCol - 1) {
                             if (toRow == fromRow + backwardDirectionP) {
                                 if (board[toRow][toCol] != null && board[toRow][toCol].isPlayer1() != p.isPlayer1()) {
-                                    p.addMoveCount();
                                     return true;
                                 }
                             }
                         }
-
-                        // check of en passant
-
-                        /*
-                         * if ((toCol == fromCol + 1 && board[toCol][toRow].moveCount == 1 && toRow == 3
-                         * && fromRow == 2)
-                         * || (toCol == fromCol - 1 && board[toCol][toRow].moveCount == 1
-                         * && toRow == 3 && fromRow == 2)) {
-                         * return true;
-                         * }
-                         */
-
                         return false;
                     case "n":
                         // Knight's movement
@@ -399,7 +328,6 @@ public class ChessGame extends JFrame {
                         } else {
                             return false;
                         }
-
                         // Check for capturing
                         boolean canCapture = board[toRow][toCol] == null
                                 || board[toRow][toCol].isPlayer1() != p.isPlayer1();
@@ -489,21 +417,18 @@ public class ChessGame extends JFrame {
                                 return true;
                             }
                         }
-
                         return false;
                     default:
                         return false;
                 }
 
             }
-
             return false;
         }
 
         private boolean isKingInCheck(boolean isPlayer1) {
             int kingRow = -1;
             int kingCol = -1;
-
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     Piece currentPiece = board[i][j];
@@ -517,9 +442,7 @@ public class ChessGame extends JFrame {
                 if (kingRow != -1 && kingCol != -1) {
                     break;
                 }
-
             }
-
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     Piece opponentPiece = board[i][j];
@@ -532,14 +455,12 @@ public class ChessGame extends JFrame {
                     }
                 }
             }
-
             return false;
         }
 
         private boolean isKingInCheckmate(boolean isPlayer1) {
             int kingRow = -1;
             int kingCol = -1;
-
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     Piece currentPiece = board[i][j];
@@ -563,13 +484,11 @@ public class ChessGame extends JFrame {
                                 Piece temp = board[i][j];
                                 board[i][j] = board[kingRow][kingCol];
                                 board[kingRow][kingCol] = null;
-
                                 if (!isKingInCheck(isPlayer1)) {
                                     board[kingRow][kingCol] = board[i][j];
                                     board[i][j] = temp;
                                     return false;
                                 }
-
                                 board[kingRow][kingCol] = board[i][j];
                                 board[i][j] = temp;
                             }
@@ -578,11 +497,10 @@ public class ChessGame extends JFrame {
                 }
                 return true;
             }
-
             return false;
         }
     }
-
+    // canCastle____ checks specific placements on the board depending on king/queen and white/black
     private boolean canCastleKingSide(int fromRow, int fromCol, int toRow, int toCol, Piece king) {
         if (king.isPlayer1() && fromRow == 0 && fromCol == 4 && toRow == 0 && toCol == 6) {
             if (board[0][5] == null && board[0][6] == null &&
@@ -590,17 +508,9 @@ public class ChessGame extends JFrame {
                     !hasPieceMoved(0, 7) && !hasPieceMoved(0, 4)) {
                 board[0][5] = board[0][7];
                 board[0][7] = null;
-
-                // board[0][6] = board[0][4];
-                // board[0][4] = null;
-
                 board[0][5].setMoved(true);
-
                 updateButtonText(0, 5, "R");
                 updateButtonText(0, 7, "");
-                // updateButtonText(0, 6, "K");
-                // updateButtonText(0, 4, "");
-
                 return true;
             }
         } else if (!king.isPlayer1() && fromRow == 7 && fromCol == 4 && toRow == 7 && toCol == 6) {
@@ -609,18 +519,9 @@ public class ChessGame extends JFrame {
                     !hasPieceMoved(7, 7) && !hasPieceMoved(7, 4)) {
                 board[7][5] = board[7][7];
                 board[7][7] = null;
-
-                // board[7][6] = board[7][4];
-                // board[7][4] = null;
-
                 board[7][5].setMoved(true);
-                // board[7][6].setMoved(true);
-
                 updateButtonText(7, 5, "r");
                 updateButtonText(7, 7, "");
-                // updateButtonText(7, 6, "k");
-                // updateButtonText(7, 4, "");
-
                 return true;
             }
         }
@@ -634,18 +535,9 @@ public class ChessGame extends JFrame {
                     !hasPieceMoved(0, 0) && !hasPieceMoved(0, 4)) {
                 board[0][3] = board[0][0];
                 board[0][0] = null;
-
-                // board[0][2] = board[0][4];
-                // board[0][4] = null;
-
                 board[0][3].setMoved(true);
-                // board[0][2].setMoved(true);
-
                 updateButtonText(0, 3, "R");
                 updateButtonText(0, 0, "");
-                // updateButtonText(0, 2, "K");
-                // updateButtonText(0, 4, "");
-
                 return true;
             }
         } else if (!king.isPlayer1() && fromRow == 7 && fromCol == 4 && toRow == 7 && toCol == 2) {
@@ -654,18 +546,9 @@ public class ChessGame extends JFrame {
                     !hasPieceMoved(7, 0) && !hasPieceMoved(7, 4)) {
                 board[7][3] = board[7][0];
                 board[7][0] = null;
-
-                // board[7][2] = board[7][4];
-                // board[7][4] = null;
-
                 board[7][3].setMoved(true);
-                // board[7][4].setMoved(true);
-
                 updateButtonText(7, 3, "r");
                 updateButtonText(7, 0, "");
-                // updateButtonText(7, 2, "k");
-                // updateButtonText(7, 4, "");
-
                 return true;
             }
         }
