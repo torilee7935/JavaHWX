@@ -7,7 +7,7 @@ The game follows the standard rules of chess, including all the normal moves and
 
 # Interface Use
 - Selecting Pieces: Click on the chess piece you want to move
-- Making a Move: After selecting a piece, click on the square where you want the piece to move
+- Making a Move: After selecting a piece, click on the square where you want the piece to move, it will then highlight yellow as the piece you have slected for a move
 - Invalid Moves: If a move is invalid, a popup will appear informing you. The game will not allow illegal moves
 - Check and Checkmate Notifications: The game will alert you with a popup if your king is in check or checkmate
 
