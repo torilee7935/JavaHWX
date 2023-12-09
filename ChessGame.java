@@ -50,6 +50,7 @@ public class ChessGame extends JFrame {
                 return false;
         }
     }
+
     public ChessGame() {
         initializeBoard();
         initializeUI();
@@ -67,7 +68,7 @@ public class ChessGame extends JFrame {
         for (int i = 0; i < 8; i++) {
             board[1][i] = new Piece("P", true, "PieceImages/WPawn.png"); // Pawns
         }
-        for (int i = 2; i < 6; i++) { // middle rows 
+        for (int i = 2; i < 6; i++) { // middle rows
             for (int j = 0; j < 8; j++) {
                 board[i][j] = null;
             }
@@ -99,17 +100,17 @@ public class ChessGame extends JFrame {
             for (int j = 0; j < 8; j++) {
                 boardButtons[i][j] = new JButton(); // New button on UI board
                 if (board[i][j] != null) {
-                    resizeImage(boardButtons[i][j], board[i][j]);   // Resizes image to fit screen
+                    resizeImage(boardButtons[i][j], board[i][j]); // Resizes image to fit screen
                 }
                 boardButtons[i][j].addActionListener(new ChessButtonListener(i, j));
                 add(boardButtons[i][j]);
             }
         }
-        updateBoardPattern();   // Sets the checkered board pattern
+        updateBoardPattern(); // Sets the checkered board pattern
         setVisible(true);
     }
 
-    private void resizeImage(JButton buttonImageBoard, Piece pieceBoard){
+    private void resizeImage(JButton buttonImageBoard, Piece pieceBoard) {
         Image originalImage = pieceBoard.image.getImage(); // Gets image associated with this piece
         Image resizedImage = originalImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH); // Resize
         pieceBoard.image = new ImageIcon(resizedImage); // Uses resized image to update piece image
@@ -124,8 +125,9 @@ public class ChessGame extends JFrame {
             boardButtons[row][col].setIcon(null);
         }
     }
+
     // Makes the checkered board pattern
-    private void updateBoardPattern(){
+    private void updateBoardPattern() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if ((i % 2 == 0 && j % 2 == 0) || i % 2 == 1 && j % 2 == 1)
@@ -190,15 +192,16 @@ public class ChessGame extends JFrame {
                 Piece toTemp = board[row][col]; // To where the piece will be move
                 boolean occupied = false; // occupied flag if there is a piece
 
-                // if its a valid move it will update the piece board/UI board and also handle special cases(king in check/checkMate, upgrade pawn to king, etc)
+                // if its a valid move it will update the piece board/UI board and also handle
+                // special cases(king in check/checkMate, upgrade pawn to king, etc)
                 if (isValidMove(selectedRow, selectedCol, row, col, board[selectedRow][selectedCol])) {
                     if (toTemp != null)
                         occupied = true;
 
-                    board[row][col] = fromTemp;     // Updates the logic board with correct piece
+                    board[row][col] = fromTemp; // Updates the logic board with correct piece
                     board[selectedRow][selectedCol] = null; // Removes piece from previous spot
-                    clickedButton.setIcon(board[row][col].image);   // Puts updated image on button
-                    selectedButton.setIcon(null); // Removes image from where piece moved 
+                    clickedButton.setIcon(board[row][col].image); // Puts updated image on button
+                    selectedButton.setIcon(null); // Removes image from where piece moved
                     updateBoardPattern();
 
                     flag = false;
@@ -206,9 +209,9 @@ public class ChessGame extends JFrame {
                     if (isKingInCheck(isPlayer1Turn)) { // if next move places you in check, move is revoked
                         flag = true;
                         JOptionPane.showMessageDialog(ChessGame.this, "Moving there puts you in Check.");
-                        board[selectedRow][selectedCol] = board[row][col]; // Resets the moved piece to original spot 
-                        boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image); // Resets the image 
-                        board[row][col] = toTemp; // Resets logic board of the spot it was supposed to be moved to       
+                        board[selectedRow][selectedCol] = board[row][col]; // Resets the moved piece to original spot
+                        boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image); // Resets the image
+                        board[row][col] = toTemp; // Resets logic board of the spot it was supposed to be moved to
 
                         if (occupied) { // if there was a piece, resets that image
                             boardButtons[selectedRow][selectedCol].setIcon(fromTemp.image);
@@ -235,7 +238,7 @@ public class ChessGame extends JFrame {
                     if (!flag)
                         isPlayer1Turn = !isPlayer1Turn;
                     // Checks for checkmate
-                    if (isKingInCheckmate(isPlayer1Turn)){
+                    if (isKingInCheckmate(isPlayer1Turn)) {
                         if (isPlayer1Turn) {
                             JOptionPane.showMessageDialog(ChessGame.this,
                                     "You have been placed in checkmate, Black Wins!");
@@ -258,8 +261,7 @@ public class ChessGame extends JFrame {
                     if (selectedButton == clickedButton) {
                         selectedButton = null;
                         updateBoardPattern();
-                    } else{ // if invalid move, reset selected button
-                        selectedButton = null;
+                    } else { // if invalid move, try again
                         JOptionPane.showMessageDialog(ChessGame.this, "Invalid move!");
                     }
                 }
@@ -500,7 +502,9 @@ public class ChessGame extends JFrame {
             return false;
         }
     }
-    // canCastle____ checks specific placements on the board depending on king/queen and white/black
+
+    // canCastle____ checks specific placements on the board depending on king/queen
+    // and white/black
     private boolean canCastleKingSide(int fromRow, int fromCol, int toRow, int toCol, Piece king) {
         if (king.isPlayer1() && fromRow == 0 && fromCol == 4 && toRow == 0 && toCol == 6) {
             if (board[0][5] == null && board[0][6] == null &&
